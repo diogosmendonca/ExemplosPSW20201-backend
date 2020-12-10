@@ -1,61 +1,75 @@
 var express = require('express');
 var router = express.Router();
 const bodyParser = require('body-parser');
+const Projetos = require('../models/projetos');
 
 router.use(bodyParser.json());
 
 
-let projetos = [
-  {
-    "nome": "Projeto 1",
-    "sigla": "P1",
-    "id": 1
-  },
-  {
-    "nome": "Projeto 2",
-    "sigla": "P2",
-    "id": 2
-  }
-];
-
-
 /* GET users listing. */
 router.route('/')
-.get((req, res, next) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.json(projetos);
+.get(async (req, res, next) => {
+
+  try{
+    const projetosBanco = await Projetos.find({}).maxTime(5000);
+    res.statusCode = 200;
+    res.setHeader('Content-Type', 'application/json');
+    res.json(projetosBanco);
+  }catch(err){
+    next(err);
+  }
+    
 })
 .post((req, res, next) => {
+  
+  Projetos.create(req.body)
+  .then((projeto) => {
+      console.log('Projeto criado ', projeto);
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json(projeto);
+  }, (err) => next(err))
+  .catch((err) => next(err));
 
-  let proxId = 1 + projetos.map(p => p.id).reduce((x, y) => Math.max(x,y));
-  let projeto = {...req.body, id: proxId};
-  projetos.push(projeto);
-
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.json(projeto);
 })
 
 router.route('/:id')
+.get((req, res, next) => {
+  
+  Projetos.findById(req.params.id)
+    .then((resp) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(resp);
+    }, (err) => next(err))
+    .catch((err) => next(err));
+
+
+})
 .delete((req, res, next) => {
   
-  projetos = projetos.filter(function(value, index, arr){ 
-    return value.id != req.params.id;
-  });
+  Projetos.findByIdAndRemove(req.params.id)
+    .then((resp) => {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'application/json');
+        res.json(resp.id);
+    }, (err) => next(err))
+    .catch((err) => next(err));
 
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.json(req.params.id);
+
 })
 .put((req, res, next) => {
   
-  let index = projetos.map(p => p.id).indexOf(req.params.id);
-  projetos.splice(index, 1, req.body);
+  Projetos.findByIdAndUpdate(req.params.id, {
+    $set: req.body
+  }, { new: true })
+  .then((projeto) => {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'application/json');
+      res.json(projeto);
+  }, (err) => next(err))
+  .catch((err) => next(err));
 
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'application/json');
-  res.json(req.body);
 })
 
 
