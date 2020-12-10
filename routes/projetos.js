@@ -11,12 +11,14 @@ router.route('/')
 .get(async (req, res, next) => {
 
   try{
-    const projetosBanco = await Projetos.find({}).maxTime(5000);
+    const projetosBanco = await Projetos.find({});
     res.statusCode = 200;
     res.setHeader('Content-Type', 'application/json');
     res.json(projetosBanco);
   }catch(err){
-    next(err);
+    err = {};
+    res.statusCode = 404;
+    res.json(err);
   }
     
 })
@@ -34,16 +36,25 @@ router.route('/')
 })
 
 router.route('/:id')
-.get((req, res, next) => {
+.get(async (req, res, next) => {
+  let err;
+  res.setHeader('Content-Type', 'application/json');
+  try{
+    const resp = await Projetos.findById(req.params.id);
+    if(resp != null){
+      res.statusCode = 200;
+      res.json(resp);
+    }else{
+      err = {};
+      res.statusCode = 404;
+      res.json(err);
+    }
   
-  Projetos.findById(req.params.id)
-    .then((resp) => {
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'application/json');
-        res.json(resp);
-    }, (err) => next(err))
-    .catch((err) => next(err));
-
+  }catch(errParam){
+    console.log(errParam);
+    res.statusCode = 404;
+    res.json({});
+  }  
 
 })
 .delete((req, res, next) => {
