@@ -10,7 +10,11 @@ const projetoSchema = new Schema({
     sigla: {
         type: String,
         required: true,
-    }
+    },
+    atividades:[{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Atividade'
+    }]
 })
 
 projetoSchema.plugin(normalize);

@@ -6,7 +6,6 @@ const Projetos = require('../models/projetos');
 router.use(bodyParser.json());
 
 
-/* GET users listing. */
 router.route('/')
 .get(async (req, res, next) => {
 
@@ -40,10 +39,11 @@ router.route('/:id')
   let err;
   res.setHeader('Content-Type', 'application/json');
   try{
-    const resp = await Projetos.findById(req.params.id);
-    if(resp != null){
+    //populate preenche o array de atividades com os documentos do collection actividades.
+    const projetos = await Projetos.findById(req.params.id).populate('atividades');
+    if(projetos != null){
       res.statusCode = 200;
-      res.json(resp);
+      res.json(projetos);
     }else{
       err = {};
       res.statusCode = 404;

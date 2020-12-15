@@ -5,6 +5,7 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var projetosRouter = require('./routes/projetos');
+var atividadesRouter = require('./routes/atividades');
 
 const mongoose = require('mongoose');
 
@@ -25,5 +26,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/projetos', projetosRouter);
+app.use('/atividades', atividadesRouter);
 
 module.exports = app;
