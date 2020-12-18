@@ -2,13 +2,14 @@ var express = require('express');
 var router = express.Router();
 const bodyParser = require('body-parser');
 const Projetos = require('../models/projetos');
+var authenticate = require('../authenticate');
 
 router.use(bodyParser.json());
 
 
 router.route('/')
-.get(async (req, res, next) => {
-
+.get(authenticate.verifyUser, async (req, res, next) => {
+  console.log(req.user);
   try{
     const projetosBanco = await Projetos.find({});
     res.statusCode = 200;
@@ -21,7 +22,7 @@ router.route('/')
   }
     
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
   
   Projetos.create(req.body)
   .then((projeto) => {
@@ -35,7 +36,7 @@ router.route('/')
 })
 
 router.route('/:id')
-.get(async (req, res, next) => {
+.get(authenticate.verifyUser, async (req, res, next) => {
   let err;
   res.setHeader('Content-Type', 'application/json');
   try{
@@ -57,7 +58,7 @@ router.route('/:id')
   }  
 
 })
-.delete((req, res, next) => {
+.delete(authenticate.verifyUser, (req, res, next) => {
   
   Projetos.findByIdAndRemove(req.params.id)
     .then((resp) => {
@@ -69,7 +70,7 @@ router.route('/:id')
 
 
 })
-.put((req, res, next) => {
+.put(authenticate.verifyUser, (req, res, next) => {
   
   Projetos.findByIdAndUpdate(req.params.id, {
     $set: req.body

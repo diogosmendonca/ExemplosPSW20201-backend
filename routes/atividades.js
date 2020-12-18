@@ -3,12 +3,13 @@ var router = express.Router();
 const bodyParser = require('body-parser');
 const Atividades = require('../models/atividades');
 const Projeto = require('../models/projetos');
+var authenticate = require('../authenticate');
 
 router.use(bodyParser.json());
 
 
 router.route('/')
-.get(async (req, res, next) => {
+.get(authenticate.verifyUser, async (req, res, next) => {
 
   try{
     const atividadesBanco = await Atividades.find({});
@@ -23,7 +24,7 @@ router.route('/')
   }
     
 })
-.post((req, res, next) => {
+.post(authenticate.verifyUser, (req, res, next) => {
     
     Atividades.create(req.body)
     .then((projeto) => {
